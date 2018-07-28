@@ -9,6 +9,8 @@ import { RegisterComponent } from './register/register.component';
 import { LoginService } from './Service/LoginService';
 
 import { HttpClientModule } from "@angular/common/http";
+import { DatePipe } from '@angular/common'
+
 
 import { RoutingModuleModule } from './routing-module.module';
 import { MessageService } from './Service/MessageService';
@@ -31,7 +33,7 @@ import { MessageService } from './Service/MessageService';
       { path: 'reg', component: RegisterComponent } ],
       { useHash: true })
   ],
-  providers: [LoginService, MessageService],
+  providers: [LoginService, MessageService, DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
