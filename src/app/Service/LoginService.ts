@@ -6,12 +6,8 @@ import { UserLogin } from '../Model/UserLogin';
 @Injectable()
 export class LoginService {
 
-  //private headers: HttpHeaders;
   private accessPointUrl: string = '/api/login';
-//  users: Array<UserLogin>;
-
   constructor(private http: HttpClient) {
-    // this.headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
   }
   public sender: string;
   public recevier: string;

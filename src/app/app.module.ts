@@ -7,11 +7,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginService } from './Service/LoginService';
-
-import { HttpClientModule } from "@angular/common/http";
-import { DatePipe } from '@angular/common'
-
-
+import { HttpClientModule} from "@angular/common/http";
 import { RoutingModuleModule } from './routing-module.module';
 import { MessageService } from './Service/MessageService';
 @NgModule({
@@ -33,7 +29,7 @@ import { MessageService } from './Service/MessageService';
       { path: 'reg', component: RegisterComponent } ],
       { useHash: true })
   ],
-  providers: [LoginService, MessageService, DatePipe],
+  providers: [LoginService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -7,8 +7,6 @@ using ChatApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace ChatApplication.Apis
 {
   [Produces("application/json")]
@@ -24,7 +22,6 @@ namespace ChatApplication.Apis
       _Logger = loggerFactory.CreateLogger(nameof(LoginController));
     }
 
-    // GET api/<controller>/5
     [HttpGet]
     [ProducesResponseType(typeof(List<UserLogin>), 200)]
     [ProducesResponseType(typeof(ApiResponse), 400)]
@@ -58,7 +55,6 @@ namespace ChatApplication.Apis
       }
     }
 
-    // POST api/<controller>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse), 201)]
     [ProducesResponseType(typeof(ApiResponse), 400)]

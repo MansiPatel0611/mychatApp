@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../Service/LoginService';
 import { UserLogin } from '../Model/UserLogin';
 import { Router } from '@angular/router';
-import { dashCaseToCamelCase } from '@angular/compiler/src/util';
 import { HubConnectionService } from '../Service/HubConnectionService';
+import { HttpErrorResponse } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-login',
@@ -21,15 +22,20 @@ export class LoginComponent implements OnInit {
   onSubmit() {
    
     this.service.getUser(this.user.name)
-      .subscribe((data: any) => {
-        if (this.user.password === data.password) {
-          this.hubservice.setconectid(this.user.name);
-          data.isConnect = "1";
-          this.service.update(data).subscribe((data1: any) => console.log(data1));
-          this.router.navigate(['/list', this.user.name]);
-        }
+      .subscribe(
+
+      (data: UserLogin) => {
+        if (!data)
+          alert("no such id");
         else {
-          alert("Password Does not match");
+          if (this.user.password === data.password) {
+            this.hubservice.setconectid(this.user.name);
+            this.hubservice.setstatus(this.user.name);
+            this.router.navigate(['/list', this.user.name]);
+          }
+          else {
+            alert("Password Does not match");
+          }
         }
       });
   }

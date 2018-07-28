@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../Service/LoginService';
 import { UserLogin } from '../Model/UserLogin';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
 import { HubConnectionService } from '../Service/HubConnectionService';
 
 @Component({
@@ -11,6 +10,7 @@ import { HubConnectionService } from '../Service/HubConnectionService';
   styleUrls: ['./chat-list.component.css']
 })
 export class ChatListComponent implements OnInit {
+  interval: any;
   public users: Array<UserLogin> = [];
   sender: string
   senderupdate = new UserLogin();
@@ -19,6 +19,11 @@ export class ChatListComponent implements OnInit {
   ngOnInit() {
     this._dataservice.getUsers()
       .subscribe((data: any) => this.users = data);
+    this.interval = setInterval(() => {
+      this._dataservice.getUsers()
+        .subscribe((data: any) => this.users = data);
+    }, 10000);
+
     let name = this.route.snapshot.params['name'];
     this._dataservice.setsender(name);
     this.sender = this._dataservice.getsender();

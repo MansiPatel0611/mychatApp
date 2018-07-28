@@ -6,8 +6,6 @@ import * as signalR from '@aspnet/signalr';
 import { UserLogin, Messages } from '../Model/UserLogin';
 import { HubConnectionService } from '../Service/HubConnectionService';
 import { MessageService } from '../Service/MessageService';
-import { forEach } from '@angular/router/src/utils/collection';
-import { DatePipe } from '@angular/common'
 
 @Component({
   selector: 'app-chatroom',
@@ -19,8 +17,7 @@ export class ChatroomComponent implements OnInit {
   store: any;
   @Input() sender: string;
   constructor(private route: ActivatedRoute, private _dataservice: LoginService
-    , private hubservice: HubConnectionService, private _msgservice: MessageService,
-    public datepipe: DatePipe
+    , private hubservice: HubConnectionService, private _msgservice: MessageService
   ) {
   }
 
@@ -32,14 +29,12 @@ export class ChatroomComponent implements OnInit {
   message: string = '';
   messages: string[] = [];
   dateTimeLocal: any;
-  //today: Date
   id: any;
   addMessage = new Messages();
   msg: string;
   onSubmit() {
 
     this.dateTimeLocal = new Date().toLocaleString();
-    //this.dateTimeLocal = DateTime.Now;
     this.sender = this._dataservice.getsender();
 
    
@@ -50,7 +45,6 @@ export class ChatroomComponent implements OnInit {
           this._dataservice.getUser(this.sender).
           subscribe((data1: any) => {
             this.senderid = data1.connectionID,
-              // console.log(this.message);
               this.msg = this.message + ":" + this.dateTimeLocal;
             this.messages = this.hubservice.senddirectmsg(this.recevierid, this.senderid, this.msg, this.sender);
           })      
@@ -58,12 +52,8 @@ export class ChatroomComponent implements OnInit {
     this.addMessage.message = this.message;
     this.addMessage.sender = this.sender;
     this.addMessage.recevier = this.recevier;
-   // let today = this.datepipe.transform(this.dateTimeLocal, 'dd/MM/yy hh:mm');
-    //console.log(today);
     this.addMessage.time = this.dateTimeLocal;
     this._msgservice.addMsg(this.addMessage).subscribe((data: any) => console.log(data));
-    //console.log(this.message);
-   // this.message = '';
   }
 
 
@@ -90,7 +80,7 @@ export class ChatroomComponent implements OnInit {
         || msg.recevier === this.sender &&
         msg.sender === this.recevier)
       {
-        var text = msg.sender + ":" + msg.message + "     :     " + msg.time;
+        var text = msg.sender + ":" + msg.message + ":" + msg.time;
           console.log(text);
           this.messages.push(text);
         }

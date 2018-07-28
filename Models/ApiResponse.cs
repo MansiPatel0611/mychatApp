@@ -10,7 +10,6 @@ namespace ChatApplication.Models
     {
     public bool Status { get; set; }
     public UserLogin User { get; set; }
-   // public Messages message { get; set; }
     public ModelStateDictionary ModelState { get; internal set; }
   }
 }

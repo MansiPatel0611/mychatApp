@@ -14,14 +14,23 @@ export class RegisterComponent implements OnInit {
   users: UserLogin[];
   constructor(private service: LoginService, private router: Router) { }
   onSubmit() {
-    if (this.confrim === this.user.password)
-    {
-      this.service.addUser(this.user).
-        subscribe((data: any) => this.users.push(data))
-      this.router.navigate(['/login']);
-    }
-    else
-      alert("Password Does not match");
+
+    this.service.getUser(this.user.name)
+      .subscribe(
+
+        (data: UserLogin) => {
+          if (data)
+            alert("id already exits Plz use another name");
+          else {
+            if (this.confrim === this.user.password) {
+              this.service.addUser(this.user).
+                subscribe((data: any) => this.users.push(data))
+              this.router.navigate(['/login']);
+            }
+            else
+              alert("Password Does not match");
+          }
+        });
   }
   ngOnInit() {
   }
