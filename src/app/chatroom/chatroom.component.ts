@@ -48,22 +48,14 @@ export class ChatroomComponent implements OnInit {
             this.senderid = data1.connectionID,
               this.msg = this.message + ":" + this.dateTimeLocal;
             this.messages= this.hubservice.senddirectmsg(this.recevierid, this.senderid, this.msg, this.sender);
-           // this.text = this.hubservice.getMessage();
-            //console.log(this.text);
-           // this.messages.push(this.text);
-        //this.notify = this.hubservice.notifymsg(this.recevierid);
             })
       });
-    //this.unread = this.hubservice.getnotify();
-    //console.log(this.unread);
     this.addMessage.message = this.message;
     this.addMessage.sender = this.sender;
     this.addMessage.recevier = this.recevier;
     this.addMessage.time = this.dateTimeLocal;
     this.addMessage.IsRead = false;
-    //console.log(this.addMessage);
     this._msgservice.addMsg(this.addMessage).subscribe((data: any) => console.log(data));
-    //this.messages = [];
   }
 
   ngOnInit() {

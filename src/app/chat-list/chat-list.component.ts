@@ -13,7 +13,6 @@ import { MessageService } from '../Service/MessageService';
 export class ChatListComponent implements OnInit {
   notifysenders: string[] = [];
   interval: any;
-  //@Input() unread: number;
   public users: Array<UserLogin> = [];
   sender: string
   senderupdate = new UserLogin();
@@ -71,31 +70,6 @@ export class ChatListComponent implements OnInit {
        // console.log(this.notifysenders)
         this.mapcount();
       });
-
-
-      
-
-
-    //  //this.unread = this.hubservice.getnotify();
-    //  this.names = this.hubservice.getnotifySender();
-    ////  console.log(this.names);
-    //  //this.notify.count = this.unread;
-    //  var flag = 0;
-    //  for (var i = 0; i < this.notifysenders.length; i++) {
-    //    if (this.notifysenders[i] === this.names) {
-    //      {
-    //        flag = 1;
-    ////        this.unread = this.unread + 1;
-    //      }
-    //      //this.notify.count = this.notify.count + 1;
-    //    }
-    //  }
-    //  if (flag == 0) {
-    //    this.notifysenders.push(this.names);
-    //  }
-      //console.log(this.unread);
-    }, 10000);
-    //console.log(this.unread);
-   
+    }, 10000);  
   }
 }

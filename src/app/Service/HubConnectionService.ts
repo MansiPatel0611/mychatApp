@@ -5,7 +5,6 @@ import * as signalR from '@aspnet/signalr';
 @Injectable()
 export class HubConnectionService {
 
-  notifySender: string;
   msg: string;
   unread: number = 1;
   text: string;
@@ -25,32 +24,15 @@ export class HubConnectionService {
     this._hubConnection.invoke('setstatus', sender); 
   }
 
-  getnotify() {
-    return this.unread;
-  }
-
-  getnotifySender() {
-    return this.notifySender;
-  }
-
-  //notifymsg(recevierid) {
-  //  this._hubConnection
-  //    .invoke('Sendnotify', recevierid);
-  //  return this.msg;
-  //}
-
   senddirectmsg(recevierid, senderid, message, sender) {
-    //this.messages = '';
     this._hubConnection
       .invoke('Send', recevierid, senderid, message, sender);
-   // console.log(this.text);
     return this.messages;
   }
  
 
   private init() {
 
-    //this.messages = [];
 
     this._hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5000/chat')
@@ -65,20 +47,9 @@ export class HubConnectionService {
 
     this._hubConnection.on('setstatus', (sender: string) => { });
 
-    //this._hubConnection.on('sendnotify', (msg: string) => {
-    //  this.msg = msg;
-    //});
-
     this._hubConnection.on('send', (receivedMessage: string, sender: string) => {
-     // this.unread = null;
       this.text = `${sender}:${receivedMessage}`;
        this.messages.push(this.text);
-
-    //  this.messages = this.text;
-      //console.log(this.messages);
-      this.notifySender = sender;
-     // this.unread = this.unread + 1;
-      //return this.messages;
     });
   }
 }
