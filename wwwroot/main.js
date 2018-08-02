@@ -36,6 +36,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Messages", function() { return Messages; });
 var UserLogin = /** @class */ (function () {
     function UserLogin() {
+        this.countmsg = 0;
     }
     return UserLogin;
 }());
@@ -64,6 +65,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var HubConnectionService = /** @class */ (function () {
     function HubConnectionService() {
+        this.unread = 1;
         this.messages = [];
         this.init();
     }
@@ -73,12 +75,26 @@ var HubConnectionService = /** @class */ (function () {
     HubConnectionService.prototype.setstatus = function (sender) {
         this._hubConnection.invoke('setstatus', sender);
     };
+    HubConnectionService.prototype.getnotify = function () {
+        return this.unread;
+    };
+    HubConnectionService.prototype.getnotifySender = function () {
+        return this.notifySender;
+    };
+    //notifymsg(recevierid) {
+    //  this._hubConnection
+    //    .invoke('Sendnotify', recevierid);
+    //  return this.msg;
+    //}
     HubConnectionService.prototype.senddirectmsg = function (recevierid, senderid, message, sender) {
+        //this.messages = '';
         this._hubConnection
             .invoke('Send', recevierid, senderid, message, sender);
+        // console.log(this.text);
         return this.messages;
     };
     HubConnectionService.prototype.init = function () {
+        //this.messages = [];
         var _this = this;
         this._hubConnection = new _aspnet_signalr__WEBPACK_IMPORTED_MODULE_0__["HubConnectionBuilder"]()
             .withUrl('http://localhost:5000/chat')
@@ -86,12 +102,21 @@ var HubConnectionService = /** @class */ (function () {
         this._hubConnection
             .start()
             .then(function () { return console.log('Connection started!'); })
-            .catch(function (err) { return console.log('Error while establishing connection :('); });
+            .catch(function (err) { return console.log('Error while establishing connection :'); });
         this._hubConnection.on('setconnectid', function (sender) { });
         this._hubConnection.on('setstatus', function (sender) { });
+        //this._hubConnection.on('sendnotify', (msg: string) => {
+        //  this.msg = msg;
+        //});
         this._hubConnection.on('send', function (receivedMessage, sender) {
+            // this.unread = null;
             _this.text = sender + ":" + receivedMessage;
             _this.messages.push(_this.text);
+            //  this.messages = this.text;
+            //console.log(this.messages);
+            _this.notifySender = sender;
+            // this.unread = this.unread + 1;
+            //return this.messages;
         });
     };
     return HubConnectionService;
@@ -173,6 +198,9 @@ var MessageService = /** @class */ (function () {
     };
     MessageService.prototype.getMsgs = function () {
         return this.http.get(this.accessPointUrl);
+    };
+    MessageService.prototype.update = function (msg) {
+        return this.http.put(this.accessPointUrl + '/' + msg.id, msg);
     };
     return MessageService;
 }());
@@ -410,7 +438,7 @@ __webpack_require__.r(__webpack_exports__);
  * @suppress {suspiciousCode,uselessCode,missingProperties,missingOverride,checkTypes}
  * tslint:disable
  */ 
-var styles = [".navbar[_ngcontent-%COMP%] {\r\n  border-radius: 0px;\r\n  border-width: 0px;\r\n  height:100%;\r\n}\r\n.dot1[_ngcontent-%COMP%] {\r\n  height: 10px;\r\n  width: 10px;\r\n  background-color: green;\r\n  border-radius: 50%;\r\n  display: inline-block;\r\n}\r\n.dot[_ngcontent-%COMP%] {\r\n  height: 10px;\r\n  width: 10px;\r\n  background-color: red;\r\n  border-radius: 50%;\r\n  display: inline-block;\r\n}"];
+var styles = [".dot1[_ngcontent-%COMP%] {\r\n  height: 10px;\r\n  width: 10px;\r\n  background-color: green;\r\n  border-radius: 50%;\r\n  display: inline-block;\r\n}\r\n.dot[_ngcontent-%COMP%] {\r\n  height: 10px;\r\n  width: 10px;\r\n  background-color: red;\r\n  border-radius: 50%;\r\n  display: inline-block;\r\n}\r\n.badge-notify[_ngcontent-%COMP%]{\r\n   background:red;\r\n   top:0px;\r\n  }"];
 
 
 
@@ -434,8 +462,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 /* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm5/common.js");
 /* harmony import */ var _chat_list_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./chat-list.component */ "./src/app/chat-list/chat-list.component.ts");
-/* harmony import */ var _Service_LoginService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Service/LoginService */ "./src/app/Service/LoginService.ts");
-/* harmony import */ var _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Service/HubConnectionService */ "./src/app/Service/HubConnectionService.ts");
+/* harmony import */ var _Service_MessageService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Service/MessageService */ "./src/app/Service/MessageService.ts");
+/* harmony import */ var _Service_LoginService__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Service/LoginService */ "./src/app/Service/LoginService.ts");
+/* harmony import */ var _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Service/HubConnectionService */ "./src/app/Service/HubConnectionService.ts");
 /**
  * @fileoverview This file was generated by the Angular template compiler. Do not edit.
  *
@@ -449,17 +478,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 var styles_ChatListComponent = [_chat_list_component_css_shim_ngstyle__WEBPACK_IMPORTED_MODULE_0__["styles"]];
 var RenderType_ChatListComponent = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵcrt"]({ encapsulation: 0, styles: styles_ChatListComponent, data: {} });
 
 function View_ChatListComponent_2(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "label", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 0, "span", [["class", "dot1"]], null, null, null, null, null))], null, null); }
 function View_ChatListComponent_3(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "label", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 0, "span", [["class", "dot"]], null, null, null, null, null))], null, null); }
-function View_ChatListComponent_1(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 7, "a", [["class", "nav-link"], ["style", "font-size:16px"]], [[1, "target", 0], [8, "href", 4]], [[null, "click"]], function (_v, en, $event) { var ad = true; if (("click" === en)) {
-        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 1).onClick($event.button, $event.ctrlKey, $event.metaKey, $event.shiftKey) !== false);
+function View_ChatListComponent_4(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 2, "label", [["class", "notification-icon"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 1, "span", [["class", "badge badge-notify"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](2, null, ["", ""]))], null, function (_ck, _v) { var currVal_0 = _v.parent.context.$implicit.countmsg; _ck(_v, 2, 0, currVal_0); }); }
+function View_ChatListComponent_1(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 9, "label", [["class", "nav-link"], ["style", "font-size:16px"]], null, [[null, "click"]], function (_v, en, $event) { var ad = true; if (("click" === en)) {
+        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 1).onClick() !== false);
         ad = (pd_0 && ad);
-    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](1, 671744, null, 0, _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterLinkWithHref"], [_angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"], _angular_common__WEBPACK_IMPORTED_MODULE_3__["LocationStrategy"]], { routerLink: [0, "routerLink"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵpad"](2, 2), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_2)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](4, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_3)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](6, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](7, null, [" ", " "]))], function (_ck, _v) { var currVal_2 = _ck(_v, 2, 0, "room", _v.context.$implicit.name); _ck(_v, 1, 0, currVal_2); var currVal_3 = (_v.context.$implicit.isConnect == 1); _ck(_v, 4, 0, currVal_3); var currVal_4 = (_v.context.$implicit.isConnect != 1); _ck(_v, 6, 0, currVal_4); }, function (_ck, _v) { var currVal_0 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 1).target; var currVal_1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 1).href; _ck(_v, 0, 0, currVal_0, currVal_1); var currVal_5 = _v.context.$implicit.name; _ck(_v, 7, 0, currVal_5); }); }
-function View_ChatListComponent_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 10, "div", [["class", "row"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 7, "nav", [["class", "navbar navbar-nav flex-column bg-dark navbar-dark"], ["style", "width:250px"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](2, 0, null, null, 1, "h2", [["style", "color:white"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](-1, null, ["People"])), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](4, 0, null, null, 0, "br", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](5, 0, null, null, 3, "ul", [["class", "nav flex-column navbar-nav"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](6, 0, null, null, 2, "li", [["class", "nav-item"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_1)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](8, 802816, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgForOf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["IterableDiffers"]], { ngForOf: [0, "ngForOf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](9, 16777216, null, null, 1, "router-outlet", [], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](10, 212992, null, 0, _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterOutlet"], [_angular_router__WEBPACK_IMPORTED_MODULE_2__["ChildrenOutletContexts"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ComponentFactoryResolver"], [8, null], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"]], null, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.users; _ck(_v, 8, 0, currVal_0); _ck(_v, 10, 0); }, null); }
-function View_ChatListComponent_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "app-chat-list", [], null, null, null, View_ChatListComponent_0, RenderType_ChatListComponent)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](1, 114688, null, 0, _chat_list_component__WEBPACK_IMPORTED_MODULE_4__["ChatListComponent"], [_Service_LoginService__WEBPACK_IMPORTED_MODULE_5__["LoginService"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"], _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_6__["HubConnectionService"]], null, null)], function (_ck, _v) { _ck(_v, 1, 0); }, null); }
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](1, 16384, null, 0, _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterLink"], [_angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"], [8, null], _angular_core__WEBPACK_IMPORTED_MODULE_1__["Renderer2"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"]], { routerLink: [0, "routerLink"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵpad"](2, 2), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_2)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](4, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_3)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](6, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](7, null, [" ", " "])), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_4)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](9, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null)], function (_ck, _v) { var currVal_0 = _ck(_v, 2, 0, "room", _v.context.$implicit.name); _ck(_v, 1, 0, currVal_0); var currVal_1 = (_v.context.$implicit.isConnect == 1); _ck(_v, 4, 0, currVal_1); var currVal_2 = (_v.context.$implicit.isConnect != 1); _ck(_v, 6, 0, currVal_2); var currVal_4 = _v.context.$implicit.countmsg; _ck(_v, 9, 0, currVal_4); }, function (_ck, _v) { var currVal_3 = _v.context.$implicit.name; _ck(_v, 7, 0, currVal_3); }); }
+function View_ChatListComponent_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 10, "div", [["class", "row"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 7, "nav", [["class", "navbar navbar-nav flex-column bg-dark navbar-dark"], ["style", "width:250px"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](2, 0, null, null, 1, "h2", [["style", "color:white"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](3, null, ["", ""])), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](4, 0, null, null, 0, "br", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](5, 0, null, null, 3, "ul", [["class", "nav flex-column navbar-nav"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](6, 0, null, null, 2, "li", [["class", "nav-item"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatListComponent_1)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](8, 802816, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_3__["NgForOf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["IterableDiffers"]], { ngForOf: [0, "ngForOf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](9, 16777216, null, null, 1, "router-outlet", [], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](10, 212992, null, 0, _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterOutlet"], [_angular_router__WEBPACK_IMPORTED_MODULE_2__["ChildrenOutletContexts"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ComponentFactoryResolver"], [8, null], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ChangeDetectorRef"]], null, null)], function (_ck, _v) { var _co = _v.component; var currVal_1 = _co.users; _ck(_v, 8, 0, currVal_1); _ck(_v, 10, 0); }, function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.sender; _ck(_v, 3, 0, currVal_0); }); }
+function View_ChatListComponent_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "app-chat-list", [], null, null, null, View_ChatListComponent_0, RenderType_ChatListComponent)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](1, 114688, null, 0, _chat_list_component__WEBPACK_IMPORTED_MODULE_4__["ChatListComponent"], [_Service_MessageService__WEBPACK_IMPORTED_MODULE_5__["MessageService"], _Service_LoginService__WEBPACK_IMPORTED_MODULE_6__["LoginService"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["ActivatedRoute"], _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_7__["HubConnectionService"]], null, null)], function (_ck, _v) { _ck(_v, 1, 0); }, null); }
 var ChatListComponentNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵccf"]("app-chat-list", _chat_list_component__WEBPACK_IMPORTED_MODULE_4__["ChatListComponent"], View_ChatListComponent_Host_0, {}, {}, []);
 
 
@@ -481,30 +512,89 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Model_UserLogin__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Model/UserLogin */ "./src/app/Model/UserLogin.ts");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 /* harmony import */ var _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Service/HubConnectionService */ "./src/app/Service/HubConnectionService.ts");
+/* harmony import */ var _Service_MessageService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Service/MessageService */ "./src/app/Service/MessageService.ts");
+
 
 
 
 
 
 var ChatListComponent = /** @class */ (function () {
-    function ChatListComponent(_dataservice, route, hubservice) {
+    function ChatListComponent(msgservice, _dataservice, router, route, hubservice) {
+        this.msgservice = msgservice;
         this._dataservice = _dataservice;
+        this.router = router;
         this.route = route;
         this.hubservice = hubservice;
+        this.notifysenders = [];
+        //@Input() unread: number;
         this.users = [];
         this.senderupdate = new _Model_UserLogin__WEBPACK_IMPORTED_MODULE_2__["UserLogin"]();
+        this.unread = 1;
+        this.countmsg = 1;
     }
+    ChatListComponent.prototype.mapcount = function () {
+        var _this = this;
+        var map = this.notifysenders.reduce(function (prev, cur) {
+            prev[cur] = (prev[cur] || 0) + 1;
+            return prev;
+        }, {});
+        // console.log(map);
+        this._dataservice.getUsers()
+            .subscribe(function (data) {
+            _this.users = data;
+            for (var key in map) {
+                for (var _i = 0, _a = _this.users; _i < _a.length; _i++) {
+                    var da = _a[_i];
+                    if (da.name == key)
+                        da.countmsg = map[key];
+                }
+            }
+        });
+    };
     ChatListComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this._dataservice.getUsers()
-            .subscribe(function (data) { return _this.users = data; });
-        this.interval = setInterval(function () {
-            _this._dataservice.getUsers()
-                .subscribe(function (data) { return _this.users = data; });
-        }, 10000);
         var name = this.route.snapshot.params['name'];
         this._dataservice.setsender(name);
         this.sender = this._dataservice.getsender();
+        this._dataservice.getUsers()
+            .subscribe(function (data) { return _this.users = data; });
+        this.interval = setInterval(function () {
+            _this.notifysenders = [];
+            _this.recevier = _this._dataservice.getrecevier();
+            _this._dataservice.getUsers()
+                .subscribe(function (data) { return _this.users = data; });
+            _this.msgservice.getMsgs().subscribe(function (data) {
+                // console.log(data);
+                for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                    var msg = data_1[_i];
+                    if (msg.recevier === _this.sender && msg.isRead == false) {
+                        _this.notifysenders.push(msg.sender);
+                    }
+                }
+                // console.log(this.notifysenders)
+                _this.mapcount();
+            });
+            //  //this.unread = this.hubservice.getnotify();
+            //  this.names = this.hubservice.getnotifySender();
+            ////  console.log(this.names);
+            //  //this.notify.count = this.unread;
+            //  var flag = 0;
+            //  for (var i = 0; i < this.notifysenders.length; i++) {
+            //    if (this.notifysenders[i] === this.names) {
+            //      {
+            //        flag = 1;
+            ////        this.unread = this.unread + 1;
+            //      }
+            //      //this.notify.count = this.notify.count + 1;
+            //    }
+            //  }
+            //  if (flag == 0) {
+            //    this.notifysenders.push(this.names);
+            //  }
+            //console.log(this.unread);
+        }, 10000);
+        //console.log(this.unread);
     };
     return ChatListComponent;
 }());
@@ -576,32 +666,34 @@ var styles_ChatroomComponent = [_chatroom_component_css_shim_ngstyle__WEBPACK_IM
 var RenderType_ChatroomComponent = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵcrt"]({ encapsulation: 0, styles: styles_ChatroomComponent, data: {} });
 
 function View_ChatroomComponent_2(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "div", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](1, null, [" ", " "]))], null, function (_ck, _v) { var currVal_0 = _v.context.$implicit; _ck(_v, 1, 0, currVal_0); }); }
-function View_ChatroomComponent_1(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 2, "div", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_2)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](2, 802816, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgForOf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["IterableDiffers"]], { ngForOf: [0, "ngForOf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.messages; _ck(_v, 2, 0, currVal_0); }, null); }
-function View_ChatroomComponent_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 24, "div", [["id", "wrapper"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 4, "div", [["id", "menu"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](2, 0, null, null, 2, "h3", [["class", "name"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](3, null, ["", " "])), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](4, 0, null, null, 0, "b", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](5, 0, null, null, 0, "div", [["style", "clear:both"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](6, 0, null, null, 2, "div", [["id", "chatbox"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_1)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](8, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](9, 0, null, null, 15, "div", [["class", "panel-footer"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](10, 0, null, null, 14, "form", [["novalidate", ""]], [[2, "ng-untouched", null], [2, "ng-touched", null], [2, "ng-pristine", null], [2, "ng-dirty", null], [2, "ng-valid", null], [2, "ng-invalid", null], [2, "ng-pending", null]], [[null, "ngSubmit"], [null, "submit"], [null, "reset"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("submit" === en)) {
-        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 12).onSubmit($event) !== false);
+function View_ChatroomComponent_1(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 2, "div", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_2)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](2, 802816, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgForOf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["IterableDiffers"]], { ngForOf: [0, "ngForOf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.hismsg; _ck(_v, 2, 0, currVal_0); }, null); }
+function View_ChatroomComponent_4(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "div", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](1, null, [" ", " "]))], null, function (_ck, _v) { var currVal_0 = _v.context.$implicit; _ck(_v, 1, 0, currVal_0); }); }
+function View_ChatroomComponent_3(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 2, "div", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_4)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](2, 802816, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgForOf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["IterableDiffers"]], { ngForOf: [0, "ngForOf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.messages; _ck(_v, 2, 0, currVal_0); }, null); }
+function View_ChatroomComponent_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 26, "div", [["id", "wrapper"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](1, 0, null, null, 4, "div", [["id", "menu"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](2, 0, null, null, 2, "h3", [["class", "name"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](3, null, ["", " "])), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](4, 0, null, null, 0, "b", [], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](5, 0, null, null, 0, "div", [["style", "clear:both"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](6, 0, null, null, 4, "div", [["id", "chatbox"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_1)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](8, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵand"](16777216, null, null, 1, null, View_ChatroomComponent_3)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](10, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](11, 0, null, null, 15, "div", [["class", "panel-footer"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](12, 0, null, null, 14, "form", [["novalidate", ""]], [[2, "ng-untouched", null], [2, "ng-touched", null], [2, "ng-pristine", null], [2, "ng-dirty", null], [2, "ng-valid", null], [2, "ng-invalid", null], [2, "ng-pending", null]], [[null, "ngSubmit"], [null, "submit"], [null, "reset"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("submit" === en)) {
+        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).onSubmit($event) !== false);
         ad = (pd_0 && ad);
     } if (("reset" === en)) {
-        var pd_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 12).onReset() !== false);
+        var pd_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).onReset() !== false);
         ad = (pd_1 && ad);
     } if (("ngSubmit" === en)) {
         var pd_2 = (_co.onSubmit() !== false);
         ad = (pd_2 && ad);
-    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](11, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ɵangular_packages_forms_forms_bg"], [], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](12, 4210688, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgForm"], [[8, null], [8, null]], null, { ngSubmit: "ngSubmit" }), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](2048, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"], null, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgForm"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](14, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControlStatusGroup"], [[4, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](15, 0, null, null, 9, "div", [["class", "input-group"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](16, 0, null, null, 5, "input", [["class", "form-control input-sm"], ["name", "msg"], ["placeholder", "Type your message here..."], ["type", "text"]], [[2, "ng-untouched", null], [2, "ng-touched", null], [2, "ng-pristine", null], [2, "ng-dirty", null], [2, "ng-valid", null], [2, "ng-invalid", null], [2, "ng-pending", null]], [[null, "ngModelChange"], [null, "input"], [null, "blur"], [null, "compositionstart"], [null, "compositionend"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("input" === en)) {
-        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 17)._handleInput($event.target.value) !== false);
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](13, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ɵangular_packages_forms_forms_bg"], [], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](14, 4210688, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgForm"], [[8, null], [8, null]], null, { ngSubmit: "ngSubmit" }), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](2048, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"], null, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgForm"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](16, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControlStatusGroup"], [[4, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](17, 0, null, null, 9, "div", [["class", "input-group"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](18, 0, null, null, 5, "input", [["class", "form-control input-sm"], ["name", "msg"], ["placeholder", "Type your message here..."], ["type", "text"]], [[2, "ng-untouched", null], [2, "ng-touched", null], [2, "ng-pristine", null], [2, "ng-dirty", null], [2, "ng-valid", null], [2, "ng-invalid", null], [2, "ng-pending", null]], [[null, "ngModelChange"], [null, "input"], [null, "blur"], [null, "compositionstart"], [null, "compositionend"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("input" === en)) {
+        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 19)._handleInput($event.target.value) !== false);
         ad = (pd_0 && ad);
     } if (("blur" === en)) {
-        var pd_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 17).onTouched() !== false);
+        var pd_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 19).onTouched() !== false);
         ad = (pd_1 && ad);
     } if (("compositionstart" === en)) {
-        var pd_2 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 17)._compositionStart() !== false);
+        var pd_2 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 19)._compositionStart() !== false);
         ad = (pd_2 && ad);
     } if (("compositionend" === en)) {
-        var pd_3 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 17)._compositionEnd($event.target.value) !== false);
+        var pd_3 = (_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 19)._compositionEnd($event.target.value) !== false);
         ad = (pd_3 && ad);
     } if (("ngModelChange" === en)) {
         var pd_4 = ((_co.message = $event) !== false);
         ad = (pd_4 && ad);
-    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](17, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["DefaultValueAccessor"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["Renderer2"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"], [2, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["COMPOSITION_BUFFER_MODE"]]], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](1024, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NG_VALUE_ACCESSOR"], function (p0_0) { return [p0_0]; }, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["DefaultValueAccessor"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](19, 671744, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgModel"], [[2, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"]], [8, null], [8, null], [6, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NG_VALUE_ACCESSOR"]]], { name: [0, "name"], model: [1, "model"] }, { update: "ngModelChange" }), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](2048, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControl"], null, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgModel"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](21, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControlStatus"], [[4, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControl"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](22, 0, null, null, 2, "span", [["class", "input-group-btn"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](23, 0, null, null, 1, "button", [["class", "btn btn-warning btn-sm"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](-1, null, [" Send "]))], function (_ck, _v) { var _co = _v.component; var currVal_1 = (_co.messages.length > 0); _ck(_v, 8, 0, currVal_1); var currVal_16 = "msg"; var currVal_17 = _co.message; _ck(_v, 19, 0, currVal_16, currVal_17); }, function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.name; _ck(_v, 3, 0, currVal_0); var currVal_2 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassUntouched; var currVal_3 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassTouched; var currVal_4 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassPristine; var currVal_5 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassDirty; var currVal_6 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassValid; var currVal_7 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassInvalid; var currVal_8 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 14).ngClassPending; _ck(_v, 10, 0, currVal_2, currVal_3, currVal_4, currVal_5, currVal_6, currVal_7, currVal_8); var currVal_9 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassUntouched; var currVal_10 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassTouched; var currVal_11 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassPristine; var currVal_12 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassDirty; var currVal_13 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassValid; var currVal_14 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassInvalid; var currVal_15 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 21).ngClassPending; _ck(_v, 16, 0, currVal_9, currVal_10, currVal_11, currVal_12, currVal_13, currVal_14, currVal_15); }); }
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](19, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["DefaultValueAccessor"], [_angular_core__WEBPACK_IMPORTED_MODULE_1__["Renderer2"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ElementRef"], [2, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["COMPOSITION_BUFFER_MODE"]]], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](1024, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NG_VALUE_ACCESSOR"], function (p0_0) { return [p0_0]; }, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["DefaultValueAccessor"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](21, 671744, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgModel"], [[2, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["ControlContainer"]], [8, null], [8, null], [6, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NG_VALUE_ACCESSOR"]]], { name: [0, "name"], model: [1, "model"] }, { update: "ngModelChange" }), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵprd"](2048, null, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControl"], null, [_angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgModel"]]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](23, 16384, null, 0, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControlStatus"], [[4, _angular_forms__WEBPACK_IMPORTED_MODULE_3__["NgControl"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](24, 0, null, null, 2, "span", [["class", "input-group-btn"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](25, 0, null, null, 1, "button", [["class", "btn btn-warning btn-sm"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵted"](-1, null, [" Send "]))], function (_ck, _v) { var _co = _v.component; var currVal_1 = (_co.hismsg.length > 0); _ck(_v, 8, 0, currVal_1); var currVal_2 = (_co.messages.length > 0); _ck(_v, 10, 0, currVal_2); var currVal_17 = "msg"; var currVal_18 = _co.message; _ck(_v, 21, 0, currVal_17, currVal_18); }, function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.name; _ck(_v, 3, 0, currVal_0); var currVal_3 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassUntouched; var currVal_4 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassTouched; var currVal_5 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassPristine; var currVal_6 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassDirty; var currVal_7 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassValid; var currVal_8 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassInvalid; var currVal_9 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 16).ngClassPending; _ck(_v, 12, 0, currVal_3, currVal_4, currVal_5, currVal_6, currVal_7, currVal_8, currVal_9); var currVal_10 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassUntouched; var currVal_11 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassTouched; var currVal_12 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassPristine; var currVal_13 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassDirty; var currVal_14 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassValid; var currVal_15 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassInvalid; var currVal_16 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵnov"](_v, 23).ngClassPending; _ck(_v, 18, 0, currVal_10, currVal_11, currVal_12, currVal_13, currVal_14, currVal_15, currVal_16); }); }
 function View_ChatroomComponent_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵeld"](0, 0, null, null, 1, "app-chatroom", [], null, null, null, View_ChatroomComponent_0, RenderType_ChatroomComponent)), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵdid"](1, 114688, null, 0, _chatroom_component__WEBPACK_IMPORTED_MODULE_4__["ChatroomComponent"], [_angular_router__WEBPACK_IMPORTED_MODULE_5__["ActivatedRoute"], _Service_LoginService__WEBPACK_IMPORTED_MODULE_6__["LoginService"], _Service_HubConnectionService__WEBPACK_IMPORTED_MODULE_7__["HubConnectionService"], _Service_MessageService__WEBPACK_IMPORTED_MODULE_8__["MessageService"]], null, null)], function (_ck, _v) { _ck(_v, 1, 0); }, null); }
 var ChatroomComponentNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵccf"]("app-chatroom", _chatroom_component__WEBPACK_IMPORTED_MODULE_4__["ChatroomComponent"], View_ChatroomComponent_Host_0, { sender: "sender" }, {}, []);
 
@@ -639,7 +731,9 @@ var ChatroomComponent = /** @class */ (function () {
         this._msgservice = _msgservice;
         this.message = '';
         this.messages = [];
+        this.hismsg = [];
         this.addMessage = new _Model_UserLogin__WEBPACK_IMPORTED_MODULE_3__["Messages"]();
+        hubservice.messages = [];
     }
     ChatroomComponent.prototype.onSubmit = function () {
         var _this = this;
@@ -648,18 +742,27 @@ var ChatroomComponent = /** @class */ (function () {
         this._dataservice.getUser(this.recevier)
             .subscribe(function (data) {
             _this.recevierid = data.connectionID,
-                _this._dataservice.getUser(_this.sender).
-                    subscribe(function (data1) {
+                _this._dataservice.getUser(_this.sender)
+                    .subscribe(function (data1) {
                     _this.senderid = data1.connectionID,
                         _this.msg = _this.message + ":" + _this.dateTimeLocal;
                     _this.messages = _this.hubservice.senddirectmsg(_this.recevierid, _this.senderid, _this.msg, _this.sender);
+                    // this.text = this.hubservice.getMessage();
+                    //console.log(this.text);
+                    // this.messages.push(this.text);
+                    //this.notify = this.hubservice.notifymsg(this.recevierid);
                 });
         });
+        //this.unread = this.hubservice.getnotify();
+        //console.log(this.unread);
         this.addMessage.message = this.message;
         this.addMessage.sender = this.sender;
         this.addMessage.recevier = this.recevier;
         this.addMessage.time = this.dateTimeLocal;
+        this.addMessage.IsRead = false;
+        //console.log(this.addMessage);
         this._msgservice.addMsg(this.addMessage).subscribe(function (data) { return console.log(data); });
+        //this.messages = [];
     };
     ChatroomComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -678,8 +781,9 @@ var ChatroomComponent = /** @class */ (function () {
                     || msg.recevier === _this.sender &&
                         msg.sender === _this.recevier) {
                     var text = msg.sender + ":" + msg.message + ":" + msg.time;
-                    console.log(text);
-                    _this.messages.push(text);
+                    _this.hismsg.push(text);
+                    msg.isRead = true;
+                    _this._msgservice.update(msg).subscribe(function (data) { return console.log(data); });
                 }
             }
         });

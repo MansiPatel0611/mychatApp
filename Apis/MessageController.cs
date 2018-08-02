@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ChatApplication.DataService;
 using ChatApplication.Models;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChatApplication.Apis
 {
- [Produces("application/json")]
+  [Produces("application/json")]
   [Route("api/message")]
   public class MessageController : Controller
     {
@@ -46,7 +45,6 @@ namespace ChatApplication.Apis
       {
         return BadRequest(new messageResponse { Status = false, ModelState = ModelState });
       }
-
       try
       {
         var newmsg = await _msgservice.AddMsgAsync(data);
@@ -55,6 +53,31 @@ namespace ChatApplication.Apis
           return BadRequest(new messageResponse { Status = false });
         }
         return CreatedAtRoute("GetMessageRoute", new { id = newmsg.id }, newmsg);
+      }
+      catch (Exception exp)
+      {
+        _Logger.LogError(exp.Message);
+        return BadRequest(new messageResponse { Status = false });
+      }
+    }
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(messageResponse), 200)]
+    [ProducesResponseType(typeof(messageResponse), 400)]
+    public async Task<ActionResult> UpdateRead(int id, [FromBody]Messages data)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(new messageResponse { Status = false, ModelState = ModelState });
+      }
+
+      try
+      {
+        var status = await _msgservice.UpdateReadStatusAsync(data);
+        if (!status)
+        {
+          return BadRequest(new messageResponse { Status = false });
+        }
+        return Ok(new messageResponse { Status = true, messages = data });
       }
       catch (Exception exp)
       {

@@ -1,22 +1,13 @@
-
-using ChatApplication.Apis;
 using ChatApplication.Data;
-using ChatApplication.DataService;
 using ChatApplication.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using static ChatApplication.Data.ChatDBContext;
 
 namespace ChatApplication.Hubs
 {
-  
+
   public class ChatHub : Hub
   {
     private ChatDBContext _service;
@@ -27,6 +18,11 @@ namespace ChatApplication.Hubs
       _service = service;
     }
 
+    //public Task Sendnotify(string userId)
+    //{
+    //  var msg = "you have new message";
+    //  return Clients.Client(userId).SendAsync("sendnotify",msg);
+    //}
     public Task Send(string userId,string senderid, string message,string sender)
     {
      return Clients.Clients(userId,senderid).SendAsync("send",message,sender);

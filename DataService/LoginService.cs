@@ -1,13 +1,10 @@
 using ChatApplication.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ChatApplication.DataService
 {
-    public interface LoginService
-    {
+  public interface LoginService{
     Task<UserLogin> AddUserAsync(UserLogin info);
     Task<UserLogin> GetUserAsync(string name);
     Task<List<UserLogin>> GetUsersAsync();

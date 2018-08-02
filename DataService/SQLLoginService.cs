@@ -4,12 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ChatApplication.DataService
 {
-    public class SQLLoginService : LoginService
+  public class SQLLoginService : LoginService
     {
     private readonly ChatDBContext _context;
     private readonly ILogger _Logger;

@@ -6,6 +6,7 @@ export class UserLogin {
   public password: string;
   public ConnectionID: string;
   public isConnect: string;
+  public countmsg: number = 0;
 
 }
 export class Messages {
@@ -15,4 +16,6 @@ export class Messages {
   public recevier: string;
   public message: string;
   public time: Date;
+  public IsRead: boolean;
 }
+

@@ -4,14 +4,16 @@ using ChatApplication.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ChatApplication.Migrations
 {
     [DbContext(typeof(ChatDBContext))]
-    partial class ChatDBContextModelSnapshot : ModelSnapshot
+    [Migration("20180801113532_create15")]
+    partial class create15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

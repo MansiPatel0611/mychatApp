@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using static ChatApplication.Data.ChatDBContext;
 
 namespace ChatApplication.Models
 {
-    public class UserLogin
+  public class UserLogin
     {
     public int id { get; set; }
     public string name { get; set; }
@@ -22,5 +18,6 @@ namespace ChatApplication.Models
     public string recevier { get; set; }
     public string message { get; set; }
     public DateTime time { get; set; }
+    public bool IsRead { get; set; }
   }
 }

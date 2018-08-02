@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ChatApplication.Data;
 using ChatApplication.Models;
@@ -35,6 +34,21 @@ namespace ChatApplication.DataService
     public async Task<List<Messages>> GetMsgAsync()
     {
       return await _context.ChatMessage.ToListAsync();
+    }
+
+    public async Task<bool> UpdateReadStatusAsync(Messages data)
+    {
+        _context.ChatMessage.Attach(data);
+        _context.Entry(data).State = EntityState.Modified;
+        try
+        {
+          return (await _context.SaveChangesAsync() > 0 ? true : false);
+        }
+        catch (Exception exp)
+        {
+          _Logger.LogError($"Error in {nameof(UpdateReadStatusAsync)}: " + exp.Message);
+        }
+        return false;
     }
   }
 }

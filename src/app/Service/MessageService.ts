@@ -16,4 +16,7 @@ export class MessageService {
   getMsgs() {
     return this.http.get(this.accessPointUrl);
   }
+  update(msg: Messages) {
+    return this.http.put(this.accessPointUrl + '/' + msg.id, msg);
+  }
 }

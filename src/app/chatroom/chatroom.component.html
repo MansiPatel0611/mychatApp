@@ -5,11 +5,16 @@
   </div>
 
   <div id="chatbox">
+    <div *ngIf="hismsg.length > 0">
+      <div *ngFor="let message of hismsg">
+        {{message }}
+      </div>
+    </div>
     <div *ngIf="messages.length > 0">
       <div *ngFor="let message of messages">
         {{message }}
       </div>
-      </div>
+    </div>
   </div>
 
   <div class="panel-footer">
@@ -25,13 +30,3 @@
       </form>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-

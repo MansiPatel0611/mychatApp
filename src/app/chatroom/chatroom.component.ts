@@ -13,14 +13,11 @@ import { MessageService } from '../Service/MessageService';
   styleUrls: ['./chatroom.component.css']
 })
 export class ChatroomComponent implements OnInit {
+
+  notify: string;
+  public unread: number;
   senderupdate: UserLogin;
   store: any;
-  @Input() sender: string;
-  constructor(private route: ActivatedRoute, private _dataservice: LoginService
-    , private hubservice: HubConnectionService, private _msgservice: MessageService
-  ) {
-  }
-
   name: string;
   recevier: string;
   recevierid: any;
@@ -28,52 +25,59 @@ export class ChatroomComponent implements OnInit {
   private _hubConnection: HubConnection;
   message: string = '';
   messages: string[] = [];
+  hismsg: string[] = [];
   dateTimeLocal: any;
   id: any;
   addMessage = new Messages();
   msg: string;
-  onSubmit() {
+  text: string;
+  @Input() sender: string;
+  constructor(private route: ActivatedRoute, private _dataservice: LoginService, private hubservice: HubConnectionService, private _msgservice: MessageService) {
+    hubservice.messages = [];
+  }
 
+  
+  onSubmit() {
     this.dateTimeLocal = new Date().toLocaleString();
     this.sender = this._dataservice.getsender();
-
-   
-
     this._dataservice.getUser(this.recevier)
       .subscribe((data: any) => {
-          this.recevierid = data.connectionID,
-          this._dataservice.getUser(this.sender).
-          subscribe((data1: any) => {
+        this.recevierid = data.connectionID,
+          this._dataservice.getUser(this.sender)
+          .subscribe((data1: any) => {
             this.senderid = data1.connectionID,
               this.msg = this.message + ":" + this.dateTimeLocal;
-            this.messages = this.hubservice.senddirectmsg(this.recevierid, this.senderid, this.msg, this.sender);
-          })      
+            this.messages= this.hubservice.senddirectmsg(this.recevierid, this.senderid, this.msg, this.sender);
+           // this.text = this.hubservice.getMessage();
+            //console.log(this.text);
+           // this.messages.push(this.text);
+        //this.notify = this.hubservice.notifymsg(this.recevierid);
+            })
       });
+    //this.unread = this.hubservice.getnotify();
+    //console.log(this.unread);
     this.addMessage.message = this.message;
     this.addMessage.sender = this.sender;
     this.addMessage.recevier = this.recevier;
     this.addMessage.time = this.dateTimeLocal;
+    this.addMessage.IsRead = false;
+    //console.log(this.addMessage);
     this._msgservice.addMsg(this.addMessage).subscribe((data: any) => console.log(data));
+    //this.messages = [];
   }
-
-
 
   ngOnInit() {
     console.log(this.dateTimeLocal);
     this.sender = this._dataservice.getsender();
-  this.name = this.route.snapshot.params['name'];
-  this._dataservice.setreceiver(this.name);
-  this.recevier = this._dataservice.getrecevier();
-  console.log("sender:" + this.sender);
-  console.log("recevier:" + this.recevier);
-
-  
-  this._msgservice.getMsgs().subscribe((data: any) => {
-
-
-    
-    for (let msg of data)
+    this.name = this.route.snapshot.params['name'];
+    this._dataservice.setreceiver(this.name);
+    this.recevier = this._dataservice.getrecevier();
+    console.log("sender:" + this.sender);
+    console.log("recevier:" + this.recevier);
+    this._msgservice.getMsgs().subscribe((data: any) =>
     {
+      for (let msg of data)
+      {
       if (
         msg.recevier === this.recevier
         && msg.sender === this.sender     
@@ -81,11 +85,13 @@ export class ChatroomComponent implements OnInit {
         msg.sender === this.recevier)
       {
         var text = msg.sender + ":" + msg.message + ":" + msg.time;
-          console.log(text);
-          this.messages.push(text);
-        }
-    }
-  });
+        this.hismsg.push(text);
+        msg.isRead = true;
+        this._msgservice.update(msg).subscribe((data: any) => console.log(data));
+      }
+      }
+    });
+
   
   }
 }

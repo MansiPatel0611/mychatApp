@@ -20,10 +20,8 @@ export class LoginComponent implements OnInit {
   constructor(private service: LoginService, private router: Router, private hubservice: HubConnectionService) { }
 
   onSubmit() {
-   
     this.service.getUser(this.user.name)
       .subscribe(
-
       (data: UserLogin) => {
         if (!data)
           alert("no such id");
@@ -39,9 +37,8 @@ export class LoginComponent implements OnInit {
         }
       });
   }
+
   ngOnInit() {
     this.service.getUsers().subscribe((data: any) => this.users = data);
-
   }
-
 }
